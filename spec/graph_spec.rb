@@ -36,9 +36,9 @@ describe Graph do
       end
     end
     
-    context 'string with self-looped vertices' do
-      it 'throws exception with error message "Graph should not contain self-looped vertices"' do
-        expect { Graph.new 'AB5, BB1' }.to raise_error.with_message('Graph should not contain self-looped vertices')
+    context 'string with self-looped nodes' do
+      it 'throws exception with error message "Graph should not contain self-looped nodes"' do
+        expect { Graph.new 'AB5, BB1' }.to raise_error.with_message('Graph should not contain self-looped nodes')
       end
     end
 
@@ -71,6 +71,12 @@ describe Graph do
     end
 
     context 'invalid route specification' do
+      it 'throws exception with error message "Route should be specified with something like \'A-B-C\'"' do
+        expect { @graph.distance_of('foo-bar') }.to raise_error.with_message('Route should be specified with something like \'A-B-C\'')
+      end
+    end
+
+    context 'route specification with non-existent nodes' do
       it 'throws exception with error message "Route should be specified with something like \'A-B-C\'"' do
         expect { @graph.distance_of('foo-bar') }.to raise_error.with_message('Route should be specified with something like \'A-B-C\'')
       end

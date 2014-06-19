@@ -24,18 +24,18 @@ class Graph
   def routes_count_for(start, finish, condition = {})
     if condition.keys.include?(:stops_lower_than_or_equal_to)
       max_stops = condition[:stops_lower_than_or_equal_to]
-      routes_count(start) do |vertex, stops, distance|
-        [ stops > max_stops, vertex == finish && stops > 0 ]
+      routes_count(start) do |node, stops, distance|
+        [ stops > max_stops, node == finish && stops > 0 ]
       end
     elsif condition.keys.include?(:stops_equal_to)
       exact_stops = condition[:stops_equal_to]
-      routes_count(start) do |vertex, stops, distance|
-        [ stops > exact_stops, vertex == finish && stops == exact_stops ]
+      routes_count(start) do |node, stops, distance|
+        [ stops > exact_stops, node == finish && stops == exact_stops ]
       end
     elsif condition.keys.include?(:distance_less_than)
       max_distance = condition[:distance_less_than]
-      routes_count(start) do |vertex, stops, distance|
-        [ distance >= max_distance, vertex == finish && stops > 0 ]
+      routes_count(start) do |node, stops, distance|
+        [ distance >= max_distance, node == finish && stops > 0 ]
       end
     else
       raise 'No valid condition specified for routes counting'
@@ -49,11 +49,11 @@ class Graph
     queue = [ start ]
     
     while queue.size > 0 do
-      vertex = queue.shift
+      node = queue.shift
       
-      break  if vertex == finish && !distance_to[vertex].nil?
+      break  if node == finish && !distance_to[node].nil?
 
-      neighbours = edge[vertex].keys.sort do |v1, v2|
+      neighbours = edge[node].keys.sort do |v1, v2|
         if distance_to[v1].nil?
           1
         elsif distance_to[v2].nil?
@@ -63,14 +63,14 @@ class Graph
         end
       end
       
-      neighbours.each do |next_vertex|
-        next  if is_visited[next_vertex]
-        new_distance = (distance_to[vertex] || 0) + edge[vertex][next_vertex]
-        distance_to[next_vertex] = new_distance  if distance_to[next_vertex].nil? || distance_to[next_vertex] > new_distance
-        queue.push next_vertex
+      neighbours.each do |next_node|
+        next  if is_visited[next_node]
+        new_distance = (distance_to[node] || 0) + edge[node][next_node]
+        distance_to[next_node] = new_distance  if distance_to[next_node].nil? || distance_to[next_node] > new_distance
+        queue.push next_node
       end
 
-      is_visited[vertex] = !distance_to[vertex].nil?
+      is_visited[node] = !distance_to[node].nil?
     end
     
     distance_to[finish]
@@ -83,11 +83,11 @@ class Graph
     count = 0
 
     while queue.size > 0 do
-      vertex, stops, distance = queue.pop
-      halt, increment = yield(vertex, stops, distance)
+      node, stops, distance = queue.pop
+      halt, increment = yield(node, stops, distance)
       next  if halt
       count += 1  if increment
-      edge[vertex].each { |v, d| queue.push([v, stops + 1, distance + d]) }
+      edge[node].each { |v, d| queue.push([v, stops + 1, distance + d]) }
     end
     
     count
@@ -96,7 +96,7 @@ class Graph
   def validate_graph_specification(str)
     raise 'Graph should be inited with a string'  unless str.is_a? String
     raise 'Graph should be inited with something like \'AB1, BC2, CA3\''  unless str.match(/^([A-Z][A-Z]\d+,\s*)*[A-Z][A-Z]\d+$/)
-    raise 'Graph should not contain self-looped vertices'  if str.match(/([A-Z])\1/)
+    raise 'Graph should not contain self-looped nodes'  if str.match(/([A-Z])\1/)
     raise 'Graph should not contain repeated edges'  if str.match(/([A-Z][A-Z]).*?\1/)
   end
   
