@@ -1,51 +1,64 @@
 class Graph
+  CONDITION_KEYS = [
+    :stops_lower_than_or_equal_to,
+    :stops_equal_to,
+    :distance_less_than,
+  ]
   
-  attr_reader :edge
+  attr_reader :edge, :nodes
   
   def initialize(graph)
     validate_graph_specification graph
     @edge = {}
+    @nodes = []
     graph.split(/,\s+/).each { |e|
       @edge[e[0]] ||= {}
       @edge[e[0]][e[1]] = e[2..-1].to_i
+      @nodes << e[0] << e[1]
     }
+    @nodes.uniq!.sort!
   end
   
   def distance_of(route)
     validate_route_specification route
-    v = route.gsub('-', '')
-    (0 .. (v.size - 2)).inject(0) do |sum, index|
-      from, to = v[index], v[index + 1]
+
+    route_nodes = route.gsub('-', '')
+
+    (0 .. (route_nodes.size - 2)).inject(0) do |sum, index|
+      from, to = route_nodes[index], route_nodes[index + 1]
       return 'NO SUCH ROUTE'  if edge[from].nil? || edge[from][to].nil?
       sum + edge[from][to]
     end
   end
   
   def routes_count_for(start, finish, condition = {})
-    if condition.keys.include?(:stops_lower_than_or_equal_to)
+    validate_start_and_finish_nodes(start, finish)
+    validate_condition(condition)
+    
+    case condition.keys.first
+    when :stops_lower_than_or_equal_to
       max_stops = condition[:stops_lower_than_or_equal_to]
       routes_count(start) do |node, stops, distance|
         [ stops > max_stops, node == finish && stops > 0 ]
       end
-    elsif condition.keys.include?(:stops_equal_to)
+    when :stops_equal_to
       exact_stops = condition[:stops_equal_to]
       routes_count(start) do |node, stops, distance|
         [ stops > exact_stops, node == finish && stops == exact_stops ]
       end
-    elsif condition.keys.include?(:distance_less_than)
+    when :distance_less_than
       max_distance = condition[:distance_less_than]
       routes_count(start) do |node, stops, distance|
         [ distance >= max_distance, node == finish && stops > 0 ]
       end
-    else
-      raise 'No valid condition specified for routes counting'
     end
   end
   
   def length_for(start, finish)
-    distance_to = { start => nil }
+    validate_start_and_finish_nodes(start, finish)
+
+    distance_to = {}
     is_visited = {}
-    
     queue = [ start ]
     
     while queue.size > 0 do
@@ -103,5 +116,17 @@ class Graph
   def validate_route_specification(str)
     raise 'Route should be specified with a string'  unless str.is_a? String
     raise 'Route should be specified with something like \'A-B-C\''  unless str.match(/^([A-Z]-)+[A-Z]$/)
+    raise 'Non-existent nodes in route specification'  unless str.split('-') - nodes == []
+  end
+  
+  def validate_condition(condition)
+    raise 'No conditions specified'  if condition.size < 1 
+    raise 'Too many conditions specified'  if condition.size > 1
+    raise 'Unknown condition specified'  unless CONDITION_KEYS.include?(condition.keys.first)
+  end
+
+  def validate_start_and_finish_nodes(start, finish)
+    raise 'Start node not found'  unless nodes.include?(start)
+    raise 'Finish node not found'  unless nodes.include?(finish)
   end
 end
