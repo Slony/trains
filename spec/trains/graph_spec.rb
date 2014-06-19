@@ -1,6 +1,6 @@
-require_relative '../graph'
+require_relative '../../trains/graph'
 
-describe Graph do
+describe Trains::Graph do
 
   before :each do
     @test_input = 'AB5, BC4, CD8, DC8, DE6, AD5, CE2, EB3, AE7'
@@ -9,11 +9,11 @@ describe Graph do
   describe '#new supplied with' do
     context 'a valid route specification' do
       it 'throws no exceptions' do
-        expect { Graph.new @test_input }.to_not raise_error
+        expect { Trains::Graph.new @test_input }.to_not raise_error
       end
       
       it 'constructs appropriate edges hash' do
-        graph = Graph.new @test_input
+        graph = Trains::Graph.new @test_input
         expect(graph.edge).to eq({
           'A' => { 'B' => 5, 'D' => 5, 'E' => 7 },
           'B' => { 'C' => 4 },
@@ -24,39 +24,39 @@ describe Graph do
       end
 
       it 'constructs sorted nodes array' do
-        graph = Graph.new @test_input
+        graph = Trains::Graph.new @test_input
         expect(graph.nodes).to eq(%w[A B C D E])
       end
     end
   
     context 'not a string' do
       it 'throws exception with error message "Graph should be inited with a string"' do
-        expect { Graph.new :foo }.to raise_error.with_message('Graph should be inited with a string')
+        expect { Trains::Graph.new :foo }.to raise_error.with_message('Graph should be inited with a string')
       end
     end
 
     context 'malformed route specification' do
       it 'throws exception with error message "Graph should be inited with something like \'AB1, BC2, CA3\'"' do
-        expect { Graph.new 'blah-blah-blah' }.to raise_error.with_message('Graph should be inited with something like \'AB1, BC2, CA3\'')
+        expect { Trains::Graph.new 'blah-blah-blah' }.to raise_error.with_message('Graph should be inited with something like \'AB1, BC2, CA3\'')
       end
     end
     
     context 'route specification with self-looped nodes' do
       it 'throws exception with error message "Graph should not contain self-looped nodes"' do
-        expect { Graph.new 'AB5, BB1' }.to raise_error.with_message('Graph should not contain self-looped nodes')
+        expect { Trains::Graph.new 'AB5, BB1' }.to raise_error.with_message('Graph should not contain self-looped nodes')
       end
     end
 
     context 'route specification with repeated edges' do
       it 'throws exception with error message "Graph should not contain repeated edges"' do
-        expect { Graph.new 'AB5, AB7' }.to raise_error.with_message('Graph should not contain repeated edges')
+        expect { Trains::Graph.new 'AB5, AB7' }.to raise_error.with_message('Graph should not contain repeated edges')
       end
     end
   end
   
   describe '#distance_of supplied with' do
     before :each do
-      @graph = Graph.new(@test_input)
+      @graph = Trains::Graph.new(@test_input)
     end
     
     context 'valid route specification' do
@@ -90,7 +90,7 @@ describe Graph do
   
   describe '#routes_count_for supplied with' do
     before :each do
-      @graph = Graph.new(@test_input)
+      @graph = Trains::Graph.new(@test_input)
     end
     
     context 'valid start and finish nodes and maximum stops count' do
@@ -150,7 +150,7 @@ describe Graph do
   
   describe '#length_for supplied with' do
     before :each do
-      @graph = Graph.new(@test_input)
+      @graph = Trains::Graph.new(@test_input)
     end
     
     context 'valid start and finish nodes' do

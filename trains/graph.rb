@@ -1,3 +1,6 @@
+# Namespace wrapper module.
+module Trains
+
 # An instance of class +Graph+ represents the railroad network as a directed
 # graph and has three useful methods to solve the test problems.
 class Graph
@@ -276,4 +279,6 @@ class Graph
     raise 'Start node not found'  unless nodes.include?(start)
     raise 'Finish node not found'  unless nodes.include?(finish)
   end
-end
+end # class Graph
+
+end # module Trains
