@@ -1,6 +1,9 @@
 Trains
 ======
 
+**Hint**: You can skip to
+[How to use this piece of code](#how-to-use-this-piece-of-code) section.
+
 ## Introduction to the Problem
 
 The problem below requires some kind of input. You are free to implement
