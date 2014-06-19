@@ -95,7 +95,7 @@ describe Graph do
     
     context 'valid start and finish nodes and maximum stops count' do
       it 'returns routes count' do
-        expect(@graph.routes_count_for('C', 'C', stops_lower_than_or_equal_to: 3)).to eq(2)
+        expect(@graph.routes_count_for('C', 'C', stops_less_than_or_equal_to: 3)).to eq(2)
       end
     end
 
@@ -123,9 +123,15 @@ describe Graph do
       end
     end
 
-    context 'no conditions' do
-      it 'throws exception with error message "No conditions specified"' do
-        expect { @graph.routes_count_for('A', 'B') }.to raise_error.with_message('No conditions specified')
+    context 'condition as not a hash' do
+      it 'throws exception with error message "Condition should be specified with a hash"' do
+        expect { @graph.routes_count_for('A', 'B', :foo) }.to raise_error.with_message('Condition should be specified with a hash')
+      end
+    end
+
+    context 'no condition' do
+      it 'throws exception with error message "No condition specified"' do
+        expect { @graph.routes_count_for('A', 'B') }.to raise_error.with_message('No condition specified')
       end
     end
 
